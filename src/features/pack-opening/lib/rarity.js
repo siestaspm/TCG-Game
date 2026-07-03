@@ -1,11 +1,10 @@
-// src/features/pack-opening/lib/rarity.js
+// All rarity logic lives here. UI components read from this file only —
+// never branch on rarity strings directly in a component.
 
-// Anything above Common/Uncommon counts as a "hit" worth highlighting.
 const BASE_RARITIES = new Set(['C', 'UC']);
 
-export function isHit(rarity) {
-  return !BASE_RARITIES.has(rarity);
-}
+// Ordered worst -> best, used only for display sorting if ever needed.
+export const RARITY_ORDER = ['C', 'UC', 'R', 'SR', 'SEC', 'SP', 'L', 'P'];
 
 const RARITY_COLORS = {
   C: '#9CA3AF',
@@ -18,6 +17,26 @@ const RARITY_COLORS = {
   SP: '#E24C4C',
 };
 
+const RARITY_LABELS = {
+  C: 'Common',
+  UC: 'Uncommon',
+  R: 'Rare',
+  SR: 'Super Rare',
+  SEC: 'Secret Rare',
+  L: 'Leader',
+  P: 'Promo',
+  SP: 'Special Rare',
+};
+
+/** Anything above Common/Uncommon counts as a "hit" worth celebrating. */
+export function isHit(rarity) {
+  return !BASE_RARITIES.has(rarity);
+}
+
 export function rarityColor(rarity) {
   return RARITY_COLORS[rarity] ?? '#6B7280';
+}
+
+export function rarityLabel(rarity) {
+  return RARITY_LABELS[rarity] ?? rarity;
 }

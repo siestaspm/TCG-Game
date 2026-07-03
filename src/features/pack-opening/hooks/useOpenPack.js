@@ -8,12 +8,13 @@ async function openPack(setId) {
   });
 
   if (error) {
-    console.log("Function error:", error);
 
+    console.log(error)
     // This is the important part
     if (error.context) {
       const body = await error.context.json();
-      console.log("Function response:", body);
+          console.log(body); // <-- This will tell you the real error
+
     }
 
     throw error;
