@@ -7,8 +7,9 @@ import ProgressIndicator from './ProgressIndicator';
 import ResultGrid from './ResultGrid';
 import usePackSequence from '../hooks/usePackSequence';
 import { openPack as playOpenAnim, pressPack, releasePack } from '../animations/packAnimations';
+import { colors } from '../../../constants/theme';
 
-export default function PackView({ cards = [], onRequestOpen, loading, onCardEffectsFeedback }) {
+export default function PackView({ cards = [], onRequestOpen, loading, onCardEffectsFeedback, navigation }) {
   const { phase, currentIndex, totalCards, remainingCards, beginReveal, advance, reset } =
     usePackSequence(cards);
 
@@ -82,12 +83,13 @@ export default function PackView({ cards = [], onRequestOpen, loading, onCardEff
     );
   }
 
-  // RESULTS
+  // RESULTS - tapping a card here opens CardDetail with context: 'pulled',
+  // so the screen knows this came from a fresh pull rather than the binder.
   return (
     <View style={styles.container}>
       <ProgressIndicator current={totalCards} total={totalCards} />
       <Text style={styles.done}>Pack Complete</Text>
-      <ResultGrid cards={cards} />
+      <ResultGrid cards={cards} navigation={navigation} />
       <Pressable style={styles.againButton} onPress={reset}>
         <Text style={styles.againText}>Open Another</Text>
       </Pressable>
@@ -102,21 +104,21 @@ const styles = StyleSheet.create({
   packArt: {
     flex: 1,
     borderRadius: 16,
-    backgroundColor: '#2F6FED',
+    backgroundColor: colors.blue,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  packArtText: { color: '#FFF', fontWeight: '900', fontSize: 24, letterSpacing: 2 },
-  text: { marginTop: 16, fontSize: 14, fontWeight: '700', color: '#14192E' },
-  done: { textAlign: 'center', marginTop: 12, fontSize: 18, fontWeight: '800' },
+  packArtText: { color: colors.white, fontWeight: '900', fontSize: 24, letterSpacing: 2 },
+  text: { marginTop: 16, fontSize: 14, fontWeight: '700', color: colors.textPrimary },
+  done: { textAlign: 'center', marginTop: 12, fontSize: 18, fontWeight: '800', color: colors.textPrimary },
   againButton: {
     marginTop: 8,
     marginBottom: 20,
     alignSelf: 'center',
-    backgroundColor: '#2F6FED',
+    backgroundColor: colors.red,
     paddingHorizontal: 20,
     paddingVertical: 12,
     borderRadius: 999,
   },
-  againText: { color: '#FFF', fontWeight: '800' },
+  againText: { color: colors.white, fontWeight: '800' },
 });

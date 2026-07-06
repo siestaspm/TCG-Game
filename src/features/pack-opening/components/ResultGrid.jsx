@@ -1,9 +1,9 @@
 import React from 'react';
-import { View, FlatList, StyleSheet } from 'react-native';
+import { View, FlatList, Pressable, StyleSheet } from 'react-native';
 
 import CardFace from './CardFace';
 
-export default function ResultGrid({ cards }) {
+export default function ResultGrid({ cards, navigation }) {
   return (
     <FlatList
       data={cards}
@@ -13,9 +13,14 @@ export default function ResultGrid({ cards }) {
       contentContainerStyle={styles.container}
       columnWrapperStyle={styles.row}
       renderItem={({ item }) => (
-        <View style={styles.cell}>
+        <Pressable
+          style={styles.cell}
+          onPress={() =>
+            navigation?.navigate('CardDetail', { card: item, context: 'pulled' })
+          }
+        >
           <CardFace card={item} />
-        </View>
+        </Pressable>
       )}
     />
   );

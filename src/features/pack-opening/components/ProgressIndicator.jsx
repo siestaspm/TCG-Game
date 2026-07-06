@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
+import { colors } from '../../../constants/theme';
 
 export default function ProgressIndicator({ current = 0, total = 0 }) {
   if (!total) return null;
@@ -25,10 +26,10 @@ const styles = StyleSheet.create({
     width: 10,
     height: 10,
     borderRadius: 999,
-    backgroundColor: '#D1D5DB',
+    backgroundColor: colors.border,
   },
   activeDot: {
     width: 18,
-    backgroundColor: '#2F6FED',
+    backgroundColor: colors.blue,
   },
 });

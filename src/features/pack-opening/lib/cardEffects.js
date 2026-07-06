@@ -2,7 +2,7 @@
 // UI/animation code should only ever call getCardEffects() + triggerCardEffects();
 // it should never branch on a rarity string itself.
 
-import { isHit } from './rarity';
+import { isHit } from '../../../constants/rarity';
 import {
   playRareAnimation,
   stopRareAnimation,

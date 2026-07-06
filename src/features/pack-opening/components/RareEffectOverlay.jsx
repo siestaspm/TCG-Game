@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet } from 'react-native';
 import Animated, { useAnimatedStyle } from 'react-native-reanimated';
 
-import { rarityColor } from '../lib/rarity';
+import { rarityColor } from '../../../constants/rarity';
 import { CARD_BORDER_RADIUS } from '../animations/constants';
 
 /**

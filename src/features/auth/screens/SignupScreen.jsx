@@ -11,6 +11,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { useAuth } from '../hooks/useAuth';
+import { colors } from '../../../constants/theme';
 
 export default function SignupScreen({ navigation }) {
   const { signUp } = useAuth();
@@ -69,7 +70,7 @@ export default function SignupScreen({ navigation }) {
       <TextInput
         style={styles.input}
         placeholder="Email"
-        placeholderTextColor="#A2AAC0"
+        placeholderTextColor={colors.textSecondary}
         autoCapitalize="none"
         autoCorrect={false}
         keyboardType="email-address"
@@ -79,7 +80,7 @@ export default function SignupScreen({ navigation }) {
       <TextInput
         style={styles.input}
         placeholder="Password"
-        placeholderTextColor="#A2AAC0"
+        placeholderTextColor={colors.textSecondary}
         secureTextEntry
         value={password}
         onChangeText={setPassword}
@@ -87,7 +88,7 @@ export default function SignupScreen({ navigation }) {
       <TextInput
         style={styles.input}
         placeholder="Confirm password"
-        placeholderTextColor="#A2AAC0"
+        placeholderTextColor={colors.textSecondary}
         secureTextEntry
         value={confirmPassword}
         onChangeText={setConfirmPassword}
@@ -98,7 +99,7 @@ export default function SignupScreen({ navigation }) {
 
       <Pressable style={styles.button} onPress={handleSignup} disabled={submitting}>
         {submitting ? (
-          <ActivityIndicator color="white" />
+          <ActivityIndicator color={colors.white} />
         ) : (
           <Text style={styles.buttonText}>Sign Up</Text>
         )}
@@ -114,27 +115,29 @@ export default function SignupScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: 'center', padding: 24, backgroundColor: '#F3F6FC', gap: 12 },
-  title: { fontSize: 26, fontWeight: '800', color: '#14192E' },
-  subtitle: { fontSize: 14, color: '#6B7280', marginBottom: 12 },
+  container: { flex: 1, justifyContent: 'center', padding: 24, backgroundColor: colors.mist, gap: 12 },
+  title: { fontSize: 26, fontWeight: '800', color: colors.textPrimary },
+  subtitle: { fontSize: 14, color: colors.textSecondary, marginBottom: 12 },
   input: {
-    backgroundColor: 'white',
+    backgroundColor: colors.white,
     borderRadius: 14,
+    borderWidth: 1,
+    borderColor: colors.border,
     paddingHorizontal: 16,
     paddingVertical: 14,
     fontSize: 15,
-    color: '#14192E',
+    color: colors.textPrimary,
   },
-  error: { color: '#E24C4C', fontSize: 13, fontWeight: '600' },
-  success: { color: '#1B4FC4', fontSize: 13, fontWeight: '600' },
+  error: { color: colors.redDeep, fontSize: 13, fontWeight: '600' },
+  success: { color: colors.blueDeep, fontSize: 13, fontWeight: '600' },
   button: {
-    backgroundColor: '#2F6FED',
+    backgroundColor: colors.red,
     borderRadius: 999,
     paddingVertical: 15,
     alignItems: 'center',
     marginTop: 8,
   },
-  buttonText: { color: 'white', fontWeight: '700', fontSize: 15 },
-  link: { textAlign: 'center', marginTop: 16, color: '#6B7280', fontSize: 13 },
-  linkBold: { color: '#2F6FED', fontWeight: '700' },
+  buttonText: { color: colors.white, fontWeight: '700', fontSize: 15 },
+  link: { textAlign: 'center', marginTop: 16, color: colors.textSecondary, fontSize: 13 },
+  linkBold: { color: colors.red, fontWeight: '700' },
 });

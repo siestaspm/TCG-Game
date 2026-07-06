@@ -1,7 +1,8 @@
 import React from 'react';
 import { View, Image, Text, StyleSheet } from 'react-native';
 
-import { isHit, rarityColor } from '../lib/rarity';
+import { isHit, rarityColor } from '../../../constants/rarity';
+import { colors } from '../../../constants/theme';
 import { CARD_BORDER_RADIUS } from '../animations/constants';
 
 export default function CardFace({ card }) {
@@ -37,24 +38,24 @@ const styles = StyleSheet.create({
   card: {
     width: '100%',
     height: '100%',
-    backgroundColor: '#FFF',
+    backgroundColor: colors.white,
     borderRadius: CARD_BORDER_RADIUS,
     overflow: 'hidden',
     shadowColor: '#000',
-    shadowOpacity: 0.18,
+    shadowOpacity: 0.12,
     shadowRadius: 12,
     shadowOffset: { width: 0, height: 6 },
     elevation: 8,
   },
-  image: { width: '100%', height: '80%', backgroundColor: '#E5EAF5' },
+  image: { width: '100%', height: '80%', backgroundColor: colors.blueLight },
   placeholder: {
     width: '100%',
     height: '80%',
-    backgroundColor: '#E5EAF5',
+    backgroundColor: colors.blueLight,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  placeholderText: { color: '#9AA5C3', fontWeight: '700', fontSize: 12 },
+  placeholderText: { color: colors.blueDeep, fontWeight: '700', fontSize: 12 },
   badge: {
     position: 'absolute',
     top: 12,
@@ -63,9 +64,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 4,
   },
-  badgeText: { color: '#FFF', fontWeight: '800', fontSize: 11 },
+  badgeText: { color: colors.white, fontWeight: '800', fontSize: 11 },
   info: { flex: 1, justifyContent: 'center', paddingHorizontal: 14 },
-  code: { fontSize: 11, color: '#2F6FED', fontWeight: '700', letterSpacing: 0.5 },
-  name: { marginTop: 4, fontSize: 15, fontWeight: '800', color: '#14192E' },
+  code: { fontSize: 11, color: colors.blue, fontWeight: '700', letterSpacing: 0.5 },
+  name: { marginTop: 4, fontSize: 15, fontWeight: '800', color: colors.textPrimary },
   hit: { marginTop: 4, fontSize: 10, fontWeight: '900', letterSpacing: 1 },
 });

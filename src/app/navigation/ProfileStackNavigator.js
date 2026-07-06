@@ -1,13 +1,12 @@
-// src/app/navigation/AuthNavigator.jsx
+// src/app/navigation/ProfileStackNavigator.jsx
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import LoginScreen from '../../features/auth/screens/LoginScreen';
-import SignupScreen from '../../features/auth/screens/SignupScreen';
+import ProfileScreen from '../../features/profile/screens/ProfileScreen';
 import { colors } from '../../constants/theme';
 
 const Stack = createNativeStackNavigator();
 
-export default function AuthNavigator() {
+export default function ProfileStackNavigator() {
   return (
     <Stack.Navigator
       screenOptions={{
@@ -15,8 +14,7 @@ export default function AuthNavigator() {
         contentStyle: { backgroundColor: colors.mist },
       }}
     >
-      <Stack.Screen name="Login" component={LoginScreen} />
-      <Stack.Screen name="Signup" component={SignupScreen} />
+      <Stack.Screen name="ProfileMain" component={ProfileScreen} />
     </Stack.Navigator>
   );
 }

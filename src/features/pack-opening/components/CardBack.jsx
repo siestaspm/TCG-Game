@@ -2,18 +2,23 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 
 import { CARD_BORDER_RADIUS } from '../animations/constants';
+import { colors } from '../../../constants/theme';
 
 /**
  * Card back is fully code-drawn — no bundled image required. This keeps
  * card visibility/logic independent of asset loading (a broken/missing
  * image should never be able to make a card disappear).
+ *
+ * Motif is a literal expression of the app's "even split" rule: the ring
+ * is blue, the diamond is red - one card back, both brand colors, neither
+ * one dominant.
  */
 export default function CardBack({ showHint = false, style }) {
   return (
     <View style={[styles.wrap, style]}>
       <View style={styles.inner}>
-        <View style={styles.diamond} />
         <View style={styles.ring} />
+        <View style={styles.diamond} />
       </View>
 
       {showHint && (
@@ -31,9 +36,9 @@ const styles = StyleSheet.create({
     height: '100%',
     borderRadius: CARD_BORDER_RADIUS,
     overflow: 'hidden',
-    backgroundColor: '#161B2E',
+    backgroundColor: colors.white,
     borderWidth: 2,
-    borderColor: '#2A3357',
+    borderColor: colors.border,
   },
   inner: {
     flex: 1,
@@ -45,13 +50,13 @@ const styles = StyleSheet.create({
     width: 140,
     height: 140,
     borderRadius: 999,
-    borderWidth: 2,
-    borderColor: '#3B4677',
+    borderWidth: 3,
+    borderColor: colors.blue,
   },
   diamond: {
     width: 46,
     height: 46,
-    backgroundColor: '#4C5B9C',
+    backgroundColor: colors.red,
     transform: [{ rotate: '45deg' }],
     borderRadius: 6,
   },
@@ -59,10 +64,10 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 20,
     alignSelf: 'center',
-    backgroundColor: 'rgba(0,0,0,0.55)',
+    backgroundColor: 'rgba(0,0,0,0.6)',
     paddingHorizontal: 14,
     paddingVertical: 6,
     borderRadius: 999,
   },
-  hintText: { color: '#FFF', fontWeight: '700', fontSize: 12 },
+  hintText: { color: colors.white, fontWeight: '700', fontSize: 12 },
 });

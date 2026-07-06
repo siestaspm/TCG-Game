@@ -3,8 +3,9 @@ import { View, StyleSheet } from 'react-native';
 
 import PackView from '../components/PackView';
 import { useOpenPack } from '../hooks/useOpenPack';
+import { colors } from '../../../constants/theme';
 
-export default function PackOpeningScreen({ route,navigation }) {
+export default function PackOpeningScreen({ route, navigation }) {
   const { setId } = route.params;
   const { mutate: openPack, data, isPending } = useOpenPack();
 
@@ -14,7 +15,12 @@ export default function PackOpeningScreen({ route,navigation }) {
 
   return (
     <View style={styles.container}>
-      <PackView cards={cards} onRequestOpen={() => openPack(setId)} loading={isPending} navigation={navigation} />
+      <PackView
+        cards={cards}
+        onRequestOpen={() => openPack(setId)}
+        loading={isPending}
+        navigation={navigation}
+      />
     </View>
   );
 }
@@ -22,6 +28,6 @@ export default function PackOpeningScreen({ route,navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0B0F1A',
+    backgroundColor: colors.mist,
   },
 });

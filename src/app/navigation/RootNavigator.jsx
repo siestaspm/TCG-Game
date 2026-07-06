@@ -4,6 +4,7 @@ import { View, ActivityIndicator, StyleSheet } from 'react-native';
 import { useAuth } from '../../features/auth/hooks/useAuth';
 import AuthNavigator from './AuthNavigator';
 import MainNavigator from './MainNavigator';
+import { colors } from '../../constants/theme';
 
 export default function RootNavigator() {
   const { session, loading } = useAuth();
@@ -11,7 +12,7 @@ export default function RootNavigator() {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#2F6FED" />
+        <ActivityIndicator size="large" color={colors.blue} />
       </View>
     );
   }
@@ -20,5 +21,10 @@ export default function RootNavigator() {
 }
 
 const styles = StyleSheet.create({
-  loadingContainer: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: '#F3F6FC' },
+  loadingContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.mist,
+  },
 });
