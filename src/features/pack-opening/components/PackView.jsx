@@ -9,7 +9,17 @@ import usePackSequence from '../hooks/usePackSequence';
 import { openPack as playOpenAnim, pressPack, releasePack } from '../animations/packAnimations';
 import { colors } from '../../../constants/theme';
 
-export default function PackView({ cards = [], onRequestOpen, loading, onCardEffectsFeedback, navigation }) {
+export default function PackView({
+  cards = [],
+  onRequestOpen,
+  loading,
+  isError,
+  errorMessage,
+  creditCost,
+  freePacksRemaining,
+  creditBalance,
+  navigation,
+}) {
   const { phase, currentIndex, totalCards, remainingCards, beginReveal, advance, reset } =
     usePackSequence(cards);
 
@@ -48,7 +58,22 @@ export default function PackView({ cards = [], onRequestOpen, loading, onCardEff
     });
   }, [awaitingCards, loading, cards.length]);
 
+  // A failed open (insufficient credits, network error, etc.) never
+  // produces cards, so the effect above never fires. Without this, the
+  // button would stay disabled showing "Opening…" forever.
+  useEffect(() => {
+    if (!isError) return;
+    setAwaitingCards(false);
+    packScale.value = 1;
+    packOpacity.value = 1;
+  }, [isError]);
+
   if (phase === 'PACK') {
+    const isFree = freePacksRemaining > 0;
+    const costLabel = isFree
+      ? `Free pack (${freePacksRemaining} left today)`
+      : `${creditCost ?? '—'} credits · you have ${creditBalance ?? 0}`;
+
     return (
       <View style={styles.center}>
         <Pressable
@@ -65,6 +90,11 @@ export default function PackView({ cards = [], onRequestOpen, loading, onCardEff
         </Pressable>
 
         <Text style={styles.text}>{awaitingCards ? 'Opening…' : 'Tap to open pack'}</Text>
+        {!awaitingCards && <Text style={styles.costLabel}>{costLabel}</Text>}
+
+        {isError && (
+          <Text style={styles.error}>{errorMessage ?? 'Could not open pack. Try again.'}</Text>
+        )}
       </View>
     );
   }
@@ -98,7 +128,7 @@ export default function PackView({ cards = [], onRequestOpen, loading, onCardEff
 }
 
 const styles = StyleSheet.create({
-  center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  center: { flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 24 },
   container: { flex: 1, paddingTop: 20 },
   pack: { width: 220, height: 300 },
   packArt: {
@@ -110,6 +140,14 @@ const styles = StyleSheet.create({
   },
   packArtText: { color: colors.white, fontWeight: '900', fontSize: 24, letterSpacing: 2 },
   text: { marginTop: 16, fontSize: 14, fontWeight: '700', color: colors.textPrimary },
+  costLabel: { marginTop: 4, fontSize: 12, fontWeight: '600', color: colors.textSecondary },
+  error: {
+    marginTop: 12,
+    fontSize: 13,
+    fontWeight: '600',
+    color: colors.redDeep,
+    textAlign: 'center',
+  },
   done: { textAlign: 'center', marginTop: 12, fontSize: 18, fontWeight: '800', color: colors.textPrimary },
   againButton: {
     marginTop: 8,

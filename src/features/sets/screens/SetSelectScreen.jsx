@@ -10,10 +10,14 @@ import {
   Image,
 } from 'react-native';
 import { useSets } from '../hooks/useSets';
+import { usePackEconomy } from '../../economy/hooks/usePackEconomy';
+import { useQuests } from '../../economy/hooks/useQuests';
 import { colors } from '../../../constants/theme';
 
 export default function SetSelectScreen({ navigation }) {
   const { data: sets, isLoading, isError, error, refetch, isRefetching } = useSets();
+  const { data: economy } = usePackEconomy();
+  const { data: quests } = useQuests();
 
   // SetSelect lives inside HomeStackNavigator, but the binder ("Collection")
   // now lives in its own tab (see CollectionStackNavigator). navigation.navigate
@@ -46,8 +50,22 @@ export default function SetSelectScreen({ navigation }) {
     );
   }
 
+  const freeRemaining = economy?.freePacksRemaining ?? 0;
+  const previewQuests = (quests ?? []).filter((q) => q.type === 'daily').slice(0, 2);
+
   return (
     <View style={styles.container}>
+      <View style={styles.economyRow}>
+        <View style={styles.freePill}>
+          <Text style={styles.freePillText}>
+            {freeRemaining > 0 ? `${freeRemaining} free packs today` : 'No free packs left today'}
+          </Text>
+        </View>
+        <View style={styles.creditPill}>
+          <Text style={styles.creditPillText}>{economy?.creditBalance ?? 0} credits</Text>
+        </View>
+      </View>
+
       <View style={styles.headerRow}>
         <Text style={styles.title}>Select set</Text>
         <Pressable style={styles.binderLink} onPress={() => goToBinder()}>
@@ -64,36 +82,83 @@ export default function SetSelectScreen({ navigation }) {
         ListEmptyComponent={
           <Text style={styles.empty}>No sets available yet.</Text>
         }
-        renderItem={({ item }) => (
-          <View style={styles.card}>
-            <Pressable
-              style={styles.cardMain}
-              onPress={() => navigation.navigate('PackOpening', { setId: item.id })}
-            >
-              {item.pack_art_url ? (
-                <Image source={{ uri: item.pack_art_url }} style={styles.packArt} />
-              ) : (
-                <View style={[styles.packArt, styles.packArtPlaceholder]}>
-                  <Text style={styles.packArtPlaceholderText}>?</Text>
+        ListFooterComponent={
+          previewQuests.length > 0 ? (
+            <View style={styles.questsSection}>
+              <View style={styles.questsHeaderRow}>
+                <Text style={styles.questsTitle}>Today's quests</Text>
+                <Pressable onPress={() => navigation.navigate('Quests')}>
+                  <Text style={styles.questsLink}>View all</Text>
+                </Pressable>
+              </View>
+              {previewQuests.map((quest) => (
+                <QuestPreviewRow key={quest.id} quest={quest} />
+              ))}
+            </View>
+          ) : null
+        }
+        renderItem={({ item }) => {
+          const isFree = freeRemaining > 0;
+          return (
+            <View style={styles.card}>
+              <Pressable
+                style={styles.cardMain}
+                onPress={() => navigation.navigate('PackOpening', { setId: item.id })}
+              >
+                {item.pack_art_url ? (
+                  <Image source={{ uri: item.pack_art_url }} style={styles.packArt} />
+                ) : (
+                  <View style={[styles.packArt, styles.packArtPlaceholder]}>
+                    <Text style={styles.packArtPlaceholderText}>?</Text>
+                  </View>
+                )}
+
+                <View style={styles.cardOverlay}>
+                  <Text style={styles.cardCode}>{item.code}</Text>
+                  <Text style={styles.cardName} numberOfLines={1}>{item.name}</Text>
                 </View>
-              )}
 
-              <View style={styles.cardOverlay}>
-                <Text style={styles.cardCode}>{item.code}</Text>
-                <Text style={styles.cardName} numberOfLines={1}>{item.name}</Text>
-              </View>
+                <View
+                  style={[
+                    styles.priceBadge,
+                    isFree ? styles.priceBadgeFree : styles.priceBadgePaid,
+                  ]}
+                >
+                  <Text
+                    style={[
+                      styles.priceBadgeText,
+                      isFree ? styles.priceBadgeTextFree : styles.priceBadgeTextPaid,
+                    ]}
+                  >
+                    {isFree ? 'Free today' : `${item.credit_cost} credits`}
+                  </Text>
+                </View>
+              </Pressable>
 
-              <View style={styles.openBadge}>
-                <Text style={styles.openBadgeText}>Open</Text>
-              </View>
-            </Pressable>
-
-            <Pressable style={styles.binderButton} onPress={() => goToBinder(item.id)}>
-              <Text style={styles.binderButtonText}>View binder</Text>
-            </Pressable>
-          </View>
-        )}
+              <Pressable style={styles.binderButton} onPress={() => goToBinder(item.id)}>
+                <Text style={styles.binderButtonText}>View binder</Text>
+              </Pressable>
+            </View>
+          );
+        }}
       />
+    </View>
+  );
+}
+
+function QuestPreviewRow({ quest }) {
+  const pct = Math.min(quest.progress / quest.requirement_target, 1);
+  return (
+    <View style={styles.questCard}>
+      <View style={styles.questLabelRow}>
+        <Text style={styles.questLabel}>{quest.title}</Text>
+        <Text style={styles.questCount}>
+          {quest.progress} / {quest.requirement_target}
+        </Text>
+      </View>
+      <View style={styles.questTrack}>
+        <View style={[styles.questFill, { width: `${pct * 100}%` }]} />
+      </View>
     </View>
   );
 }
@@ -104,6 +169,26 @@ const styles = StyleSheet.create({
     flex: 1, alignItems: 'center', justifyContent: 'center',
     backgroundColor: colors.mist, gap: 16,
   },
+
+  economyRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 14 },
+  freePill: {
+    backgroundColor: colors.blueLight,
+    borderWidth: 1,
+    borderColor: colors.blue,
+    borderRadius: 999,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+  },
+  freePillText: { color: colors.blueDeep, fontSize: 12, fontWeight: '600' },
+  creditPill: {
+    backgroundColor: colors.white,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 999,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+  },
+  creditPillText: { color: colors.textPrimary, fontSize: 12, fontWeight: '600' },
 
   headerRow: {
     flexDirection: 'row',
@@ -164,16 +249,19 @@ const styles = StyleSheet.create({
   cardCode: { fontSize: 11, fontWeight: '800', color: colors.blueDeep, letterSpacing: 1.5 },
   cardName: { fontSize: 17, fontWeight: '800', color: colors.textPrimary },
 
-  openBadge: {
+  priceBadge: {
     position: 'absolute',
     top: 10,
     right: 10,
-    backgroundColor: colors.blue,
-    borderRadius: 6,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
+    borderRadius: 8,
+    paddingHorizontal: 9,
+    paddingVertical: 4,
   },
-  openBadgeText: { fontSize: 10, fontWeight: '800', color: colors.white, letterSpacing: 0.5 },
+  priceBadgeFree: { backgroundColor: colors.blue },
+  priceBadgePaid: { backgroundColor: colors.redLight, borderWidth: 1, borderColor: colors.red },
+  priceBadgeText: { fontSize: 11, fontWeight: '800', letterSpacing: 0.3 },
+  priceBadgeTextFree: { color: colors.white },
+  priceBadgeTextPaid: { color: colors.redDeep },
 
   binderButton: {
     borderWidth: 1,
@@ -184,4 +272,26 @@ const styles = StyleSheet.create({
     backgroundColor: colors.redLight,
   },
   binderButtonText: { color: colors.redDeep, fontWeight: '800', fontSize: 12, letterSpacing: 0.5 },
+
+  questsSection: { marginTop: 8, marginBottom: 8 },
+  questsHeaderRow: {
+    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
+    marginBottom: 10, paddingHorizontal: 4,
+  },
+  questsTitle: { fontSize: 13, fontWeight: '700', color: colors.textSecondary, letterSpacing: 0.5 },
+  questsLink: { fontSize: 12, fontWeight: '700', color: colors.blue },
+
+  questCard: {
+    backgroundColor: colors.white,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: colors.border,
+    padding: 12,
+    marginBottom: 8,
+  },
+  questLabelRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 6 },
+  questLabel: { fontSize: 13, color: colors.textPrimary, fontWeight: '600' },
+  questCount: { fontSize: 12, color: colors.textSecondary },
+  questTrack: { height: 6, borderRadius: 999, backgroundColor: colors.border, overflow: 'hidden' },
+  questFill: { height: '100%', backgroundColor: colors.blue },
 });

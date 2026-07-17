@@ -5,7 +5,7 @@ import { supabase } from '../../../lib/supabase';
 async function fetchSets() {
   const { data, error } = await supabase
     .from('sets')
-    .select('id, code, name, release_date, pack_art_url')
+    .select('id, code, name, release_date, pack_art_url, credit_cost')
     .order('release_date', { ascending: false });
 
   if (error) throw error;
@@ -22,7 +22,7 @@ export function useSets() {
 async function fetchSet(setId) {
   const { data, error } = await supabase
     .from('sets')
-    .select('id, code, name, release_date, pack_art_url')
+    .select('id, code, name, release_date, pack_art_url, credit_cost')
     .eq('id', setId)
     .single();
 
@@ -30,8 +30,8 @@ async function fetchSet(setId) {
   return data;
 }
 
-// Used by PackOpeningScreen to show the pack art/name for the chosen set
-// before the pack has been opened.
+// Used by PackOpeningScreen to show the pack art/name/price for the chosen
+// set before the pack has been opened.
 export function useSet(setId) {
   return useQuery({
     queryKey: ['sets', setId],

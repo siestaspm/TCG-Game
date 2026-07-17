@@ -5,6 +5,7 @@ import HomeScreen from '../../features/home/screens/HomeScreen';
 import SetSelectScreen from '../../features/sets/screens/SetSelectScreen';
 import PackOpeningScreen from '../../features/pack-opening/screens/PackOpeningScreen';
 import CardDetailScreen from '../../features/collection/screens/CardDetailScreen';
+import QuestsScreen from '../../features/economy/screens/QuestsScreen';
 import { colors } from '../../constants/theme';
 
 const Stack = createNativeStackNavigator();
@@ -26,6 +27,7 @@ export default function HomeStackNavigator() {
         affordance - see CollectionStackNavigator for the other entry point.
       */}
       <Stack.Screen name="CardDetail" component={CardDetailScreen} />
+      <Stack.Screen name="Quests" component={QuestsScreen} />
     </Stack.Navigator>
   );
 }
