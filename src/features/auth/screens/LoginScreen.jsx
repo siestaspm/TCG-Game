@@ -1,16 +1,18 @@
 // src/features/auth/screens/LoginScreen.jsx
 import React, { useState } from 'react';
 import {
-  View,
   Text,
-  TextInput,
   Pressable,
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
-  ActivityIndicator,
+  ScrollView,
 } from 'react-native';
 import { useAuth } from '../hooks/useAuth';
+import GradientBackground from '../../../components/ui/GradientBackground';
+import Surface from '../../../components/ui/Surface';
+import TextField from '../../../components/ui/TextField';
+import Button from '../../../components/ui/Button';
 import { colors } from '../../../constants/theme';
 
 export default function LoginScreen({ navigation }) {
@@ -40,74 +42,65 @@ export default function LoginScreen({ navigation }) {
   };
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-    >
-      <Text style={styles.title}>Welcome back</Text>
-      <Text style={styles.subtitle}>Log in to keep opening packs</Text>
+    <GradientBackground>
+      <KeyboardAvoidingView
+        style={styles.flex}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      >
+        <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+          <Text style={styles.eyebrow}>welcome back</Text>
+          <Text style={styles.title}>Log in</Text>
+          <Text style={styles.subtitle}>Keep opening packs and growing your binder.</Text>
 
-      <TextInput
-        style={styles.input}
-        placeholder="Email"
-        placeholderTextColor={colors.textSecondary}
-        autoCapitalize="none"
-        autoCorrect={false}
-        keyboardType="email-address"
-        value={email}
-        onChangeText={setEmail}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Password"
-        placeholderTextColor={colors.textSecondary}
-        secureTextEntry
-        value={password}
-        onChangeText={setPassword}
-      />
+          <Surface style={styles.card}>
+            <TextField
+              label="Email"
+              placeholder="you@example.com"
+              autoCapitalize="none"
+              autoCorrect={false}
+              keyboardType="email-address"
+              value={email}
+              onChangeText={setEmail}
+            />
+            <TextField
+              label="Password"
+              placeholder="Password"
+              secureTextEntry
+              value={password}
+              onChangeText={setPassword}
+              style={styles.fieldSpacing}
+            />
 
-      {error ? <Text style={styles.error}>{error}</Text> : null}
+            {error ? <Text style={styles.error}>{error}</Text> : null}
 
-      <Pressable style={styles.button} onPress={handleLogin} disabled={submitting}>
-        {submitting ? (
-          <ActivityIndicator color={colors.white} />
-        ) : (
-          <Text style={styles.buttonText}>Log In</Text>
-        )}
-      </Pressable>
+            <Button title="Log In" onPress={handleLogin} loading={submitting} style={styles.button} />
+          </Surface>
 
-      <Pressable onPress={() => navigation.navigate('Signup')}>
-        <Text style={styles.link}>
-          Don't have an account? <Text style={styles.linkBold}>Sign up</Text>
-        </Text>
-      </Pressable>
-    </KeyboardAvoidingView>
+          <Pressable onPress={() => navigation.navigate('Signup')}>
+            <Text style={styles.link}>
+              Don't have an account? <Text style={styles.linkBold}>Sign up</Text>
+            </Text>
+          </Pressable>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </GradientBackground>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: 'center', padding: 24, backgroundColor: colors.mist, gap: 12 },
-  title: { fontSize: 26, fontWeight: '800', color: colors.textPrimary },
-  subtitle: { fontSize: 14, color: colors.textSecondary, marginBottom: 12 },
-  input: {
-    backgroundColor: colors.white,
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: colors.border,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    fontSize: 15,
-    color: colors.textPrimary,
-  },
-  error: { color: colors.red, fontSize: 13, fontWeight: '600' },
-  button: {
-    backgroundColor: colors.blue,
-    borderRadius: 999,
-    paddingVertical: 15,
-    alignItems: 'center',
-    marginTop: 8,
-  },
-  buttonText: { color: colors.white, fontWeight: '700', fontSize: 15 },
-  link: { textAlign: 'center', marginTop: 16, color: colors.textSecondary, fontSize: 13 },
-  linkBold: { color: colors.blue, fontWeight: '700' },
+  flex: { flex: 1 },
+  content: { flexGrow: 1, justifyContent: 'center', padding: 24, gap: 12 },
+
+  eyebrow: { color: 'rgba(255,255,255,0.75)', fontSize: 12, fontWeight: '700', letterSpacing: 2 },
+  title: { fontSize: 30, fontWeight: '800', color: colors.white, marginTop: 2 },
+  subtitle: { fontSize: 14, color: 'rgba(255,255,255,0.85)', marginBottom: 12 },
+
+  card: { gap: 4 },
+  fieldSpacing: { marginTop: 14 },
+
+  error: { color: colors.redDeep, fontSize: 13, fontWeight: '600', marginTop: 14 },
+  button: { marginTop: 18 },
+
+  link: { textAlign: 'center', marginTop: 20, color: 'rgba(255,255,255,0.85)', fontSize: 13 },
+  linkBold: { color: colors.white, fontWeight: '800' },
 });

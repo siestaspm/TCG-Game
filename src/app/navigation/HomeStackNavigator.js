@@ -2,6 +2,7 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import HomeScreen from '../../features/home/screens/HomeScreen';
+import GameSelectScreen from '../../features/games/screens/GameSelectScreen';
 import SetSelectScreen from '../../features/sets/screens/SetSelectScreen';
 import PackOpeningScreen from '../../features/pack-opening/screens/PackOpeningScreen';
 import CardDetailScreen from '../../features/collection/screens/CardDetailScreen';
@@ -19,6 +20,7 @@ export default function HomeStackNavigator() {
       }}
     >
       <Stack.Screen name="HomeMain" component={HomeScreen} />
+      <Stack.Screen name="GameSelect" component={GameSelectScreen} />
       <Stack.Screen name="SetSelect" component={SetSelectScreen} />
       <Stack.Screen name="PackOpening" component={PackOpeningScreen} />
       {/*

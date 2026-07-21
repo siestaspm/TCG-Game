@@ -34,3 +34,26 @@ export const PARTICLE_DURATION = 1200;
 export const GLOW_SCALE = 1.06;
 export const SHAKE_DISTANCE = 6;
 export const SHAKE_DURATION = 70;
+export const PARTICLE_COUNT = 12;
+export const PARTICLE_DISTANCE = 110; // px a particle travels outward at full progress
+export const PARTICLE_SIZE = 7;
+
+// Pack idle (waiting for tap) - subtle breathing/shimmer so the pack reads
+// as "alive" rather than a static button.
+export const IDLE_FLOAT_DISTANCE = 8;
+export const IDLE_FLOAT_DURATION = 1400;
+export const IDLE_SHEEN_DURATION = 2600;
+
+// Pack rip - punchier than a plain scale+fade: a rotational wobble, a
+// radial flash burst, and a screen-wide micro-shake all fire together.
+export const RIP_WOBBLE_DEG = 5;
+export const RIP_FLASH_DURATION = 260;
+export const RIP_SCREEN_SHAKE_DISTANCE = 10;
+
+// First-card flip gets a small scale "pop" at the midpoint on top of the
+// existing rotateY flip, so it reads as a reveal rather than a flat spin.
+export const FLIP_POP_SCALE = 1.08;
+
+// Results grid - cards stagger in one at a time instead of popping in as a
+// flat grid.
+export const RESULT_STAGGER_MS = 55;

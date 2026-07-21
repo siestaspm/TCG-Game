@@ -5,7 +5,7 @@ import PackView from '../components/PackView';
 import { useOpenPack } from '../hooks/useOpenPack';
 import { usePackEconomy } from '../../economy/hooks/usePackEconomy';
 import { useSet } from '../../sets/hooks/useSets';
-import { colors } from '../../../constants/theme';
+import ScreenBackground from '../../../components/ui/ScreenBackground';
 
 export default function PackOpeningScreen({ route, navigation }) {
   const { setId } = route.params;
@@ -26,25 +26,26 @@ export default function PackOpeningScreen({ route, navigation }) {
   };
 
   return (
-    <View style={styles.container}>
-      <PackView
-        cards={cards}
-        onRequestOpen={handleRequestOpen}
-        loading={isPending}
-        isError={isError}
-        errorMessage={error?.message}
-        creditCost={set?.credit_cost}
-        freePacksRemaining={economy?.freePacksRemaining}
-        creditBalance={economy?.creditBalance}
-        navigation={navigation}
-      />
-    </View>
+    <ScreenBackground>
+      <View style={styles.container}>
+        <PackView
+          cards={cards}
+          onRequestOpen={handleRequestOpen}
+          loading={isPending}
+          isError={isError}
+          errorMessage={error?.message}
+          creditCost={set?.credit_cost}
+          freePacksRemaining={economy?.freePacksRemaining}
+          creditBalance={economy?.creditBalance}
+          navigation={navigation}
+        />
+      </View>
+    </ScreenBackground>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.mist,
   },
 });

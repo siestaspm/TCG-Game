@@ -12,10 +12,19 @@ async function fetchSets() {
   return data;
 }
 
-export function useSets() {
+// `sets` has no game_code column yet in Supabase, so every row is treated as
+// Pokemon until that migration is run - this keeps the query itself
+// unchanged (no risk of erroring against the current schema) while still
+// letting the UI filter by game today.
+function withGameCode(sets) {
+  return sets.map((s) => ({ ...s, game_code: s.game_code ?? 'onepiece' }));
+}
+
+export function useSets(gameId) {
   return useQuery({
     queryKey: ['sets'],
-    queryFn: fetchSets,
+    queryFn: async () => withGameCode(await fetchSets()),
+    select: (sets) => (gameId ? sets.filter((s) => s.game_code === gameId) : sets),
   });
 }
 

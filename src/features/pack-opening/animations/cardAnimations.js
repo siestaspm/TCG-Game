@@ -1,4 +1,4 @@
-import { interpolate, withSpring, withTiming, runOnJS } from 'react-native-reanimated';
+import { interpolate, withSpring, withTiming, withSequence, runOnJS } from 'react-native-reanimated';
 
 import {
   DEFAULT_SPRING,
@@ -6,6 +6,7 @@ import {
   SWIPE_DISMISS_DURATION,
   FLIP_DURATION,
   MAX_ROTATION,
+  FLIP_POP_SCALE,
 } from './constants';
 
 /** Called continuously while the top card is being dragged. */
@@ -59,10 +60,20 @@ export function dismissCard({ translateX, rotateZ, direction = 1, screenWidth, o
  * instead kept rotating 90 -> 180, the newly-swapped content would render
  * mirrored/backwards. Approaching 0 from -90 instead keeps it upright.
  */
-export function flipToFront({ rotateY }, { onMidpoint, onFinished } = {}) {
+export function flipToFront({ rotateY, scale }, { onMidpoint, onFinished } = {}) {
   'worklet';
 
   const half = FLIP_DURATION / 2;
+
+  // A small scale "pop" riding alongside the rotation - independent of the
+  // rotateY sequencing below, so it doesn't need to thread through the
+  // midpoint content-swap logic.
+  if (scale) {
+    scale.value = withSequence(
+      withTiming(FLIP_POP_SCALE, { duration: half }),
+      withSpring(1, DEFAULT_SPRING),
+    );
+  }
 
   rotateY.value = withTiming(90, { duration: half }, (finished) => {
     if (!finished) return;

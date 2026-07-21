@@ -14,14 +14,14 @@ export const RARITY_ORDER = ['C', 'UC', 'R', 'SR', 'SEC', 'SP', 'L', 'P'];
 const BASE_RARITIES = new Set(['C', 'UC']);
 
 export const RARITY_STYLES = {
-  C:   { color: '#8B93A6', label: 'Common',     glow: false },
-  UC:  { color: '#3DDC84', label: 'Uncommon',   glow: false },
-  R:   { color: '#3B9CFF', label: 'Rare',       glow: false },
-  SR:  { color: '#B15CFF', label: 'Super Rare', glow: true },
-  SEC: { color: '#FFB020', label: 'Secret Rare',glow: true },
-  L:   { color: '#FF4D6D', label: 'Leader',     glow: true },
-  P:   { color: '#33D9E8', label: 'Promo',      glow: false },
-  SP:  { color: '#FF7AD9', label: 'Special',    glow: true },
+  C:   { color: '#8891A8', label: 'Common',     glow: false },
+  UC:  { color: '#5FA8E0', label: 'Uncommon',   glow: false },
+  R:   { color: '#2F6FED', label: 'Rare',       glow: false },
+  SR:  { color: '#8B5CF6', label: 'Super Rare', glow: true },
+  SEC: { color: '#F0B429', label: 'Secret Rare',glow: true },
+  L:   { color: '#FF5A5F', label: 'Leader',     glow: true },
+  P:   { color: '#2FD9C4', label: 'Promo',      glow: false },
+  SP:  { color: '#E85DC0', label: 'Special',    glow: true },
 };
 
 export function getRarityStyle(rarity) {

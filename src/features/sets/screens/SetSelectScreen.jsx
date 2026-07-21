@@ -12,10 +12,13 @@ import {
 import { useSets } from '../hooks/useSets';
 import { usePackEconomy } from '../../economy/hooks/usePackEconomy';
 import { useQuests } from '../../economy/hooks/useQuests';
-import { colors } from '../../../constants/theme';
+import Button from '../../../components/ui/Button';
+import ScreenBackground from '../../../components/ui/ScreenBackground';
+import { colors, radii, shadow } from '../../../constants/theme';
 
-export default function SetSelectScreen({ navigation }) {
-  const { data: sets, isLoading, isError, error, refetch, isRefetching } = useSets();
+export default function SetSelectScreen({ route, navigation }) {
+  const { gameId } = route?.params ?? {};
+  const { data: sets, isLoading, isError, error, refetch, isRefetching } = useSets(gameId);
   const { data: economy } = usePackEconomy();
   const { data: quests } = useQuests();
 
@@ -33,20 +36,22 @@ export default function SetSelectScreen({ navigation }) {
 
   if (isLoading) {
     return (
-      <View style={styles.centered}>
-        <ActivityIndicator color={colors.blue} />
-      </View>
+      <ScreenBackground>
+        <View style={styles.centered}>
+          <ActivityIndicator color={colors.blue} />
+        </View>
+      </ScreenBackground>
     );
   }
 
   if (isError) {
     return (
-      <View style={styles.centered}>
-        <Text style={styles.error}>{error?.message ?? 'Could not load sets.'}</Text>
-        <Pressable style={styles.retryButton} onPress={() => refetch()}>
-          <Text style={styles.retryButtonText}>Retry</Text>
-        </Pressable>
-      </View>
+      <ScreenBackground>
+        <View style={styles.centered}>
+          <Text style={styles.error}>{error?.message ?? 'Could not load sets.'}</Text>
+          <Button title="Retry" onPress={() => refetch()} style={styles.retryButton} />
+        </View>
+      </ScreenBackground>
     );
   }
 
@@ -54,7 +59,12 @@ export default function SetSelectScreen({ navigation }) {
   const previewQuests = (quests ?? []).filter((q) => q.type === 'daily').slice(0, 2);
 
   return (
+    <ScreenBackground>
     <View style={styles.container}>
+      <Pressable style={styles.backButton} onPress={() => navigation.goBack()}>
+        <Text style={styles.backButtonText}>‹ Back</Text>
+      </Pressable>
+
       <View style={styles.economyRow}>
         <View style={styles.freePill}>
           <Text style={styles.freePillText}>
@@ -67,7 +77,7 @@ export default function SetSelectScreen({ navigation }) {
       </View>
 
       <View style={styles.headerRow}>
-        <Text style={styles.title}>Select set</Text>
+        <Text style={styles.title}>Pick a pack</Text>
         <Pressable style={styles.binderLink} onPress={() => goToBinder()}>
           <Text style={styles.binderLinkText}>My binder</Text>
         </Pressable>
@@ -143,6 +153,7 @@ export default function SetSelectScreen({ navigation }) {
         }}
       />
     </View>
+    </ScreenBackground>
   );
 }
 
@@ -164,18 +175,21 @@ function QuestPreviewRow({ quest }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.mist, paddingTop: 56, paddingHorizontal: 16 },
+  container: { flex: 1, paddingTop: 56, paddingHorizontal: 16 },
   centered: {
     flex: 1, alignItems: 'center', justifyContent: 'center',
-    backgroundColor: colors.mist, gap: 16,
+    gap: 16, paddingHorizontal: 24,
   },
+
+  backButton: { alignSelf: 'flex-start', paddingVertical: 4, marginBottom: 8 },
+  backButtonText: { color: colors.textSecondary, fontWeight: '700', fontSize: 13, letterSpacing: 0.5 },
 
   economyRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 14 },
   freePill: {
     backgroundColor: colors.blueLight,
     borderWidth: 1,
     borderColor: colors.blue,
-    borderRadius: 999,
+    borderRadius: radii.pill,
     paddingHorizontal: 12,
     paddingVertical: 6,
   },
@@ -184,7 +198,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.white,
     borderWidth: 1,
     borderColor: colors.border,
-    borderRadius: 999,
+    borderRadius: radii.pill,
     paddingHorizontal: 12,
     paddingVertical: 6,
   },
@@ -197,38 +211,33 @@ const styles = StyleSheet.create({
     marginBottom: 18,
     paddingHorizontal: 4,
   },
-  title: { fontSize: 20, fontWeight: '800', color: colors.textPrimary, letterSpacing: 1 },
+  title: { fontSize: 22, fontWeight: '800', color: colors.textPrimary },
   binderLink: {
     paddingVertical: 7,
     paddingHorizontal: 14,
-    borderRadius: 999,
+    borderRadius: radii.pill,
     backgroundColor: colors.blueLight,
     borderWidth: 1,
     borderColor: colors.blue,
   },
   binderLinkText: { color: colors.blueDeep, fontWeight: '800', fontSize: 11, letterSpacing: 0.5 },
 
-  list: { gap: 16, paddingBottom: 32, paddingHorizontal: 4 },
+  list: { gap: 16, paddingBottom: 140, paddingHorizontal: 4 },
   empty: { textAlign: 'center', color: colors.textSecondary, marginTop: 40 },
-  error: { color: colors.red, fontSize: 14, fontWeight: '600', textAlign: 'center', paddingHorizontal: 24 },
-  retryButton: {
-    backgroundColor: colors.blue,
-    borderRadius: 999,
-    paddingVertical: 12,
-    paddingHorizontal: 28,
-  },
-  retryButtonText: { color: colors.white, fontWeight: '800', letterSpacing: 1 },
+  error: { color: colors.redDeep, fontSize: 14, fontWeight: '600', textAlign: 'center' },
+  retryButton: { alignSelf: 'center', paddingHorizontal: 28 },
 
   card: { gap: 8 },
 
   cardMain: {
     height: 150,
-    borderRadius: 16,
+    borderRadius: radii.lg,
     backgroundColor: colors.white,
     borderWidth: 1,
     borderColor: colors.border,
     overflow: 'hidden',
     justifyContent: 'flex-end',
+    ...shadow.card,
   },
   packArt: { width: '100%', height: '100%', position: 'absolute' },
   packArtPlaceholder: {
@@ -253,7 +262,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 10,
     right: 10,
-    borderRadius: 8,
+    borderRadius: radii.sm,
     paddingHorizontal: 9,
     paddingVertical: 4,
   },
@@ -266,7 +275,7 @@ const styles = StyleSheet.create({
   binderButton: {
     borderWidth: 1,
     borderColor: colors.red,
-    borderRadius: 10,
+    borderRadius: radii.md,
     paddingVertical: 10,
     alignItems: 'center',
     backgroundColor: colors.redLight,
@@ -283,7 +292,7 @@ const styles = StyleSheet.create({
 
   questCard: {
     backgroundColor: colors.white,
-    borderRadius: 14,
+    borderRadius: radii.md,
     borderWidth: 1,
     borderColor: colors.border,
     padding: 12,
@@ -292,6 +301,6 @@ const styles = StyleSheet.create({
   questLabelRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 6 },
   questLabel: { fontSize: 13, color: colors.textPrimary, fontWeight: '600' },
   questCount: { fontSize: 12, color: colors.textSecondary },
-  questTrack: { height: 6, borderRadius: 999, backgroundColor: colors.border, overflow: 'hidden' },
+  questTrack: { height: 6, borderRadius: radii.pill, backgroundColor: colors.border, overflow: 'hidden' },
   questFill: { height: '100%', backgroundColor: colors.blue },
 });

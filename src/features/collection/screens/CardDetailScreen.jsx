@@ -2,16 +2,19 @@
 import React from 'react';
 import { View, Text, Image, Pressable, StyleSheet, ScrollView } from 'react-native';
 import { getRarityStyle } from '../../../constants/rarity';
-import { colors } from '../../../constants/theme';
+import ScreenBackground from '../../../components/ui/ScreenBackground';
+import { colors, radii, shadow } from '../../../constants/theme';
 
 export default function CardDetailScreen({ route, navigation }) {
   const { card, context = 'binder' } = route?.params ?? {};
 
   if (!card) {
     return (
-      <View style={styles.center}>
-        <Text style={styles.errorText}>Card not found.</Text>
-      </View>
+      <ScreenBackground>
+        <View style={styles.center}>
+          <Text style={styles.errorText}>Card not found.</Text>
+        </View>
+      </ScreenBackground>
     );
   }
 
@@ -26,6 +29,7 @@ export default function CardDetailScreen({ route, navigation }) {
   const backLabel = isFreshPull ? '‹ Continue' : '‹ Back to binder';
 
   return (
+    <ScreenBackground>
     <ScrollView style={styles.page} contentContainerStyle={styles.content}>
       <Pressable style={styles.backButton} onPress={() => navigation.goBack()}>
         <Text style={styles.backButtonText}>{backLabel}</Text>
@@ -88,6 +92,7 @@ export default function CardDetailScreen({ route, navigation }) {
         </View>
       )}
     </ScrollView>
+    </ScreenBackground>
   );
 }
 
@@ -101,10 +106,10 @@ function StatRow({ label, value }) {
 }
 
 const styles = StyleSheet.create({
-  page: { flex: 1, backgroundColor: colors.mist },
-  center: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.mist },
-  errorText: { color: colors.red, fontWeight: '600' },
-  content: { paddingHorizontal: 20, paddingTop: 56, paddingBottom: 40, gap: 16 },
+  page: { flex: 1 },
+  center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  errorText: { color: colors.redDeep, fontWeight: '600' },
+  content: { paddingHorizontal: 20, paddingTop: 56, paddingBottom: 140, gap: 16 },
 
   backButton: { alignSelf: 'flex-start', paddingVertical: 4, paddingHorizontal: 2 },
   backButtonText: { color: colors.textSecondary, fontWeight: '700', fontSize: 13, letterSpacing: 0.5 },
@@ -112,11 +117,12 @@ const styles = StyleSheet.create({
   artFrame: {
     width: '100%',
     aspectRatio: 0.7,
-    borderRadius: 18,
+    borderRadius: radii.xl,
     borderWidth: 3,
     backgroundColor: colors.white,
     overflow: 'hidden',
     alignSelf: 'center',
+    ...shadow.card,
   },
   glow: { shadowOpacity: 0.35, shadowRadius: 16, shadowOffset: { width: 0, height: 0 }, elevation: 8 },
   art: { width: '100%', height: '100%' },
@@ -131,21 +137,22 @@ const styles = StyleSheet.create({
   titleRow: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12 },
   cardName: { flex: 1, fontSize: 24, fontWeight: '800', color: colors.textPrimary },
 
-  qtyPill: { backgroundColor: colors.blueLight, borderRadius: 999, paddingHorizontal: 10, paddingVertical: 5 },
+  qtyPill: { backgroundColor: colors.blueLight, borderRadius: radii.pill, paddingHorizontal: 10, paddingVertical: 5 },
   qtyPillText: { color: colors.blueDeep, fontSize: 11, fontWeight: '800', letterSpacing: 0.5 },
 
-  newPill: { backgroundColor: colors.redLight, borderRadius: 999, paddingHorizontal: 10, paddingVertical: 5 },
+  newPill: { backgroundColor: colors.redLight, borderRadius: radii.pill, paddingHorizontal: 10, paddingVertical: 5 },
   newPillText: { color: colors.redDeep, fontSize: 11, fontWeight: '800', letterSpacing: 0.5 },
 
-  rarityTag: { alignSelf: 'flex-start', borderRadius: 8, paddingHorizontal: 10, paddingVertical: 4 },
+  rarityTag: { alignSelf: 'flex-start', borderRadius: radii.sm, paddingHorizontal: 10, paddingVertical: 4 },
   rarityTagText: { color: colors.white, fontWeight: '800', fontSize: 11, letterSpacing: 1 },
 
   statGrid: {
     backgroundColor: colors.white,
-    borderRadius: 14,
+    borderRadius: radii.lg,
     borderWidth: 1,
     borderColor: colors.border,
     overflow: 'hidden',
+    ...shadow.card,
   },
   statRow: {
     flexDirection: 'row', justifyContent: 'space-between',
@@ -157,7 +164,7 @@ const styles = StyleSheet.create({
 
   hintBox: {
     backgroundColor: colors.blueLight,
-    borderRadius: 12,
+    borderRadius: radii.md,
     padding: 14,
     borderLeftWidth: 3,
     borderLeftColor: colors.blue,

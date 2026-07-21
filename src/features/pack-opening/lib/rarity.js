@@ -7,14 +7,14 @@ const BASE_RARITIES = new Set(['C', 'UC']);
 export const RARITY_ORDER = ['C', 'UC', 'R', 'SR', 'SEC', 'SP', 'L', 'P'];
 
 const RARITY_COLORS = {
-  C: '#9CA3AF',
-  UC: '#6B9AE8',
+  C: '#8891A8',
+  UC: '#5FA8E0',
   R: '#2F6FED',
   SR: '#8B5CF6',
-  SEC: '#E0A429',
-  L: '#E0A429',
-  P: '#E24C4C',
-  SP: '#E24C4C',
+  SEC: '#F0B429',
+  L: '#FF5A5F',
+  P: '#2FD9C4',
+  SP: '#E85DC0',
 };
 
 const RARITY_LABELS = {

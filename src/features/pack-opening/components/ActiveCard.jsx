@@ -7,6 +7,7 @@ import useCardAnimations from '../hooks/useCardAnimations';
 import { updateDrag, resetDrag, dismissCard, flipToFront } from '../animations/cardAnimations';
 import { triggerCardEffects, clearCardEffects, getCardEffects } from '../lib/cardEffects';
 import { CARD_WIDTH, CARD_ASPECT_RATIO, SWIPE_THRESHOLD_RATIO, SWIPE_VELOCITY } from '../animations/constants';
+import { useHaptics } from '../../../hooks/useHaptics';
 
 import CardFace from './CardFace';
 import CardBack from './CardBack';
@@ -38,8 +39,9 @@ export default function ActiveCard({
   onDismiss,
   onEffectsFeedback,
 }) {
-  const { translateX, translateY, rotateZ, rotateY, glowOpacity, glowScale, particleProgress } =
+  const { translateX, translateY, rotateZ, rotateY, scale, glowOpacity, glowScale, particleProgress } =
     useCardAnimations();
+  const haptics = useHaptics();
 
   const [revealed, setRevealed] = useState(startRevealed);
   const effectsFiredRef = useRef(false);
@@ -57,14 +59,18 @@ export default function ActiveCard({
       triggerCardEffects(
         card.rarity,
         { translateX, glowOpacity, glowScale, particleProgress },
-        onEffectsFeedback,
+        (feedback) => {
+          haptics.trigger(feedback.haptic);
+          onEffectsFeedback?.(feedback);
+        },
       );
     }
   }, [isTop, revealed]);
 
   const handleTapReveal = () => {
+    haptics.tap();
     flipToFront(
-      { rotateY },
+      { rotateY, scale },
       {
         // Fires at the edge-on midpoint of the flip — content swaps here.
         onMidpoint: () => setRevealed(true),
@@ -118,6 +124,7 @@ export default function ActiveCard({
       { translateX: translateX.value },
       { translateY: translateY.value },
       { rotate: `${rotateZ.value}deg` },
+      { scale: scale.value },
     ],
   }));
 
@@ -131,8 +138,10 @@ export default function ActiveCard({
               <RareEffectOverlay
                 rarity={card.rarity}
                 visible={effects.glow}
+                particles={effects.particles}
                 glowOpacity={glowOpacity}
                 glowScale={glowScale}
+                particleProgress={particleProgress}
               />
             </>
           ) : (

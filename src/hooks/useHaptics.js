@@ -20,6 +20,17 @@ const HAPTIC_OPTIONS = {
 export function useHaptics() {
   return {
     /**
+     * trigger(type) - Fire a raw react-native-haptic-feedback pattern by
+     * name (e.g. 'impactLight', 'notificationSuccess'). Used where the
+     * pattern is decided elsewhere (see pack-opening/lib/cardEffects.js,
+     * which maps card rarity to a haptic name) rather than picked here.
+     */
+    trigger: (type) => {
+      if (!type) return;
+      HapticFeedback.trigger(type, HAPTIC_OPTIONS);
+    },
+
+    /**
      * tap() - Light haptic for subtle interactions
      * Use: Card flip, toggle switch, small confirmation
      */

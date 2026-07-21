@@ -12,7 +12,7 @@ export default function AuthNavigator() {
     <Stack.Navigator
       screenOptions={{
         headerShown: false,
-        contentStyle: { backgroundColor: colors.mist },
+        contentStyle: { backgroundColor: colors.blue },
       }}
     >
       <Stack.Screen name="Login" component={LoginScreen} />

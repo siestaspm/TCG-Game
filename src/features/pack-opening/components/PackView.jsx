@@ -1,13 +1,31 @@
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, View, Pressable, Text } from 'react-native';
-import Animated, { useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  interpolate,
+  Extrapolation,
+  FadeInDown,
+  FadeInUp,
+} from 'react-native-reanimated';
+import LinearGradient from 'react-native-linear-gradient';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import CardStack from './CardStack';
 import ProgressIndicator from './ProgressIndicator';
 import ResultGrid from './ResultGrid';
 import usePackSequence from '../hooks/usePackSequence';
-import { openPack as playOpenAnim, pressPack, releasePack } from '../animations/packAnimations';
-import { colors } from '../../../constants/theme';
+import {
+  openPack as playOpenAnim,
+  pressPack,
+  releasePack,
+  startIdlePack,
+  stopIdlePack,
+} from '../animations/packAnimations';
+import { RESULT_STAGGER_MS } from '../animations/constants';
+import { useHaptics } from '../../../hooks/useHaptics';
+import Button from '../../../components/ui/Button';
+import { colors, gradients, radii } from '../../../constants/theme';
 
 export default function PackView({
   cards = [],
@@ -22,20 +40,55 @@ export default function PackView({
 }) {
   const { phase, currentIndex, totalCards, remainingCards, beginReveal, advance, reset } =
     usePackSequence(cards);
+  const insets = useSafeAreaInsets();
+  const haptics = useHaptics();
 
   const packScale = useSharedValue(1);
   const packOpacity = useSharedValue(1);
+  const packRotate = useSharedValue(0);
+  const packTranslateY = useSharedValue(0);
+  const packSheen = useSharedValue(0);
+  const packFlash = useSharedValue(0);
+  const screenShake = useSharedValue(0);
 
   // True from tap until cards have arrived AND the rip animation has played.
   const [awaitingCards, setAwaitingCards] = useState(false);
 
   const packStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: packScale.value }],
+    transform: [
+      { translateY: packTranslateY.value },
+      { rotate: `${packRotate.value}deg` },
+      { scale: packScale.value },
+    ],
     opacity: packOpacity.value,
   }));
 
+  const sheenStyle = useAnimatedStyle(() => ({
+    opacity: interpolate(packSheen.value, [0, 0.15, 0.5, 0.85, 1], [0, 0.55, 0, 0.55, 0], Extrapolation.CLAMP),
+    transform: [{ translateX: interpolate(packSheen.value, [0, 1], [-260, 260]) }, { rotate: '20deg' }],
+  }));
+
+  const flashStyle = useAnimatedStyle(() => ({
+    opacity: packFlash.value,
+    transform: [{ scale: interpolate(packFlash.value, [0, 0.9], [0.5, 1.6], Extrapolation.CLAMP) }],
+  }));
+
+  const screenShakeStyle = useAnimatedStyle(() => ({
+    transform: [{ translateX: screenShake.value }],
+  }));
+
+  // Idle bob + sheen sweep while the pack sits waiting for a tap. Restarts
+  // whenever we come back to an idle PACK phase (e.g. after a failed open),
+  // not just on first mount.
+  useEffect(() => {
+    if (phase !== 'PACK' || awaitingCards) return;
+    startIdlePack({ packTranslateY, packSheen });
+    return () => stopIdlePack({ packTranslateY, packSheen });
+  }, [phase, awaitingCards]);
+
   const handleTapPack = () => {
     if (awaitingCards) return;
+    haptics.tap();
     setAwaitingCards(true);
     onRequestOpen();
   };
@@ -48,9 +101,14 @@ export default function PackView({
   useEffect(() => {
     if (!awaitingCards || loading || !cards.length) return;
 
+    haptics.impact();
+
     playOpenAnim({
       packScale,
       packOpacity,
+      packRotate,
+      packFlash,
+      screenShake,
       onFinished: () => {
         beginReveal();
         setAwaitingCards(false);
@@ -75,19 +133,31 @@ export default function PackView({
       : `${creditCost ?? '—'} credits · you have ${creditBalance ?? 0}`;
 
     return (
-      <View style={styles.center}>
-        <Pressable
-          onPress={handleTapPack}
-          onPressIn={() => pressPack(packScale)}
-          onPressOut={() => releasePack(packScale)}
-          disabled={awaitingCards}
-        >
-          <Animated.View style={[styles.pack, packStyle]}>
-            <View style={styles.packArt}>
-              <Text style={styles.packArtText}>PACK</Text>
-            </View>
-          </Animated.View>
-        </Pressable>
+      <Animated.View
+        style={[styles.center, { paddingTop: insets.top, paddingBottom: insets.bottom }, screenShakeStyle]}
+      >
+        <View style={styles.packStage}>
+          <Animated.View pointerEvents="none" style={[styles.flash, flashStyle]} />
+
+          <Pressable
+            onPress={handleTapPack}
+            onPressIn={() => pressPack(packScale)}
+            onPressOut={() => releasePack(packScale)}
+            disabled={awaitingCards}
+          >
+            <Animated.View style={[styles.pack, packStyle]}>
+              <LinearGradient
+                colors={gradients.brand}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.packArt}
+              >
+                <Text style={styles.packArtText}>PACK</Text>
+                <Animated.View pointerEvents="none" style={[styles.sheen, sheenStyle]} />
+              </LinearGradient>
+            </Animated.View>
+          </Pressable>
+        </View>
 
         <Text style={styles.text}>{awaitingCards ? 'Opening…' : 'Tap to open pack'}</Text>
         {!awaitingCards && <Text style={styles.costLabel}>{costLabel}</Text>}
@@ -95,13 +165,13 @@ export default function PackView({
         {isError && (
           <Text style={styles.error}>{errorMessage ?? 'Could not open pack. Try again.'}</Text>
         )}
-      </View>
+      </Animated.View>
     );
   }
 
   if (phase === 'REVEAL') {
     return (
-      <View style={styles.container}>
+      <View style={[styles.container, { paddingTop: insets.top + 20 }]}>
         <ProgressIndicator current={currentIndex} total={totalCards} />
         <CardStack
           cards={remainingCards}
@@ -116,13 +186,15 @@ export default function PackView({
   // RESULTS - tapping a card here opens CardDetail with context: 'pulled',
   // so the screen knows this came from a fresh pull rather than the binder.
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { paddingTop: insets.top + 20 }]}>
       <ProgressIndicator current={totalCards} total={totalCards} />
-      <Text style={styles.done}>Pack Complete</Text>
+      <Animated.Text entering={FadeInDown.springify().damping(14)} style={styles.done}>
+        Pack Complete
+      </Animated.Text>
       <ResultGrid cards={cards} navigation={navigation} />
-      <Pressable style={styles.againButton} onPress={reset}>
-        <Text style={styles.againText}>Open Another</Text>
-      </Pressable>
+      <Animated.View entering={FadeInUp.delay(cards.length * RESULT_STAGGER_MS).springify()}>
+        <Button title="Open Another" onPress={reset} style={styles.againButton} />
+      </Animated.View>
     </View>
   );
 }
@@ -130,15 +202,30 @@ export default function PackView({
 const styles = StyleSheet.create({
   center: { flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 24 },
   container: { flex: 1, paddingTop: 20 },
+  packStage: { alignItems: 'center', justifyContent: 'center' },
   pack: { width: 220, height: 300 },
   packArt: {
     flex: 1,
-    borderRadius: 16,
-    backgroundColor: colors.blue,
+    borderRadius: radii.lg,
     justifyContent: 'center',
     alignItems: 'center',
+    overflow: 'hidden',
   },
   packArtText: { color: colors.white, fontWeight: '900', fontSize: 24, letterSpacing: 2 },
+  sheen: {
+    position: 'absolute',
+    top: -60,
+    width: 90,
+    height: 420,
+    backgroundColor: 'rgba(255,255,255,0.55)',
+  },
+  flash: {
+    position: 'absolute',
+    width: 260,
+    height: 260,
+    borderRadius: 260,
+    backgroundColor: colors.white,
+  },
   text: { marginTop: 16, fontSize: 14, fontWeight: '700', color: colors.textPrimary },
   costLabel: { marginTop: 4, fontSize: 12, fontWeight: '600', color: colors.textSecondary },
   error: {
@@ -151,12 +238,8 @@ const styles = StyleSheet.create({
   done: { textAlign: 'center', marginTop: 12, fontSize: 18, fontWeight: '800', color: colors.textPrimary },
   againButton: {
     marginTop: 8,
-    marginBottom: 20,
+    marginBottom: 140,
     alignSelf: 'center',
-    backgroundColor: colors.red,
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    borderRadius: 999,
+    paddingHorizontal: 24,
   },
-  againText: { color: colors.white, fontWeight: '800' },
 });

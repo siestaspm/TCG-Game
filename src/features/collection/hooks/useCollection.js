@@ -27,26 +27,16 @@ export function useCollection(setId) {
         .in('card_id', cards.map((c) => c.id));
       if (ownedError) throw ownedError;
 
-      console.log(owned)
-      console.log(ownedError)
-
       const ownedMap = new Map(owned.map((o) => [o.card_id, o.quantity]));
-      const merged = cards.map((card) => ({
+
+      // Always return a flat list (each card keeps its set_id) - CollectionScreen
+      // groups/filters client-side (by set, by game) as needed. Previously this
+      // returned {setId, cards}[] groups when setId was omitted, which
+      // CollectionScreen didn't actually handle, silently breaking the "all
+      // sets" binder view.
+      return cards.map((card) => ({
         ...card,
         quantity: ownedMap.get(card.id) ?? 0,
-      }));
-
-      if (setId) return merged; // flat list for a single set
-
-      // No setId: group by set_id for a sectioned view
-      const bySet = new Map();
-      for (const card of merged) {
-        if (!bySet.has(card.set_id)) bySet.set(card.set_id, []);
-        bySet.get(card.set_id).push(card);
-      }
-      return Array.from(bySet.entries()).map(([setId, cards]) => ({
-        setId,
-        cards,
       }));
     },
   });
